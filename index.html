@@ -302,12 +302,29 @@ function waTargetUrl(num,text){
   }
   return 'https://api.whatsapp.com/send?phone='+num+'&text='+enc;
 }
+function isInAppBrowser(){
+  return /TikTok|musical_ly|BytedanceWebview|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent||'');
+}
+function copyToClipboard(text){
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).catch(function(){}); return; }
+  var ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand('copy'); }catch(err){}
+  document.body.removeChild(ta);
+}
 function shareWA(e){
   var fd=[];for(var i=0;i<DATA.length;i++) if(favSet[DATA[i].n]) fd.push(DATA[i]);
   if(!fd.length){ e.preventDefault(); return; }
   var lines=['Merhaba, sepetimdeki \u00fcr\u00fcnleri sipari\u015f etmek istiyorum:',''];
   for(var i=0;i<fd.length;i++) lines.push((i+1)+'. '+fd[i].n+' - '+fd[i].b+(fd[i].p?' ('+fd[i].p.toLocaleString('tr-TR')+' \u20ba)':''));
-  e.currentTarget.href=waTargetUrl('905050583054',lines.join('\n'));
+  var msg=lines.join('\n');
+  if(isInAppBrowser()){
+    e.preventDefault();
+    copyToClipboard(msg);
+    alert('Sipari\u015f mesaj\u0131n\u0131z kopyaland\u0131!\n\nBu uygulama i\u00e7i taray\u0131c\u0131 WhatsApp\u2019\u0131 do\u011frudan a\u00e7am\u0131yor. Sa\u011f \u00fcstteki \u22ef men\u00fcs\u00fcnden "Taray\u0131c\u0131da A\u00e7"\u0131 se\u00e7ip tekrar deneyin, ya da WhatsApp\u2019\u0131 kendiniz a\u00e7\u0131p mesaj\u0131 yap\u0131\u015ft\u0131r\u0131n.');
+    return;
+  }
+  e.currentTarget.href=waTargetUrl('905050583054',msg);
 }
 
 function openDetail(idx){
