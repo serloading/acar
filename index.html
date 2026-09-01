@@ -107,7 +107,7 @@ footer{padding:20px 16px;text-align:center;font-size:11px;color:var(--text3);let
 .detail-price{font-size:20px;font-weight:700;color:var(--text);margin-bottom:14px;font-variant-numeric:tabular-nums}</style>
 </head>
 <body>
-<header class="site-header"><h1>Acar Lüks Parfüm</h1><div class="header-line"></div></header>
+<header class="site-header"><h1>Acar Lüks Parfüm</h1><div class="header-line"></div></header><div id="iab-banner" style="display:none;background:#1A1A1A;color:#C4A882;font-size:12px;text-align:center;padding:10px 16px;line-height:1.5;">WhatsApp’in düzgün açılması için sağ üstteki <b>⋯</b> menüsünden <b>"Tarayıcıda Aç"</b>ı seçin.</div>
 <div id="active-strip"></div>
 <div class="grid" id="grid"></div>
 <div id="loader">Yükleniyor…</div>
@@ -294,13 +294,20 @@ function renderFavView(){
   var html='';for(var i=0;i<fd.length;i++) html+=cardHTML(fd[i],DATA.indexOf(fd[i]));
   grid.innerHTML=html;
 }
+function waTargetUrl(num,text){
+  var enc=encodeURIComponent(text);
+  var isAndroid=/Android/i.test(navigator.userAgent||'');
+  if(isAndroid){
+    return 'intent://send?phone='+num+'&text='+enc+'#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url='+encodeURIComponent('https://api.whatsapp.com/send?phone='+num+'&text='+enc)+';end';
+  }
+  return 'https://api.whatsapp.com/send?phone='+num+'&text='+enc;
+}
 function shareWA(e){
-  e.preventDefault();
   var fd=[];for(var i=0;i<DATA.length;i++) if(favSet[DATA[i].n]) fd.push(DATA[i]);
-  if(!fd.length) return;
+  if(!fd.length){ e.preventDefault(); return; }
   var lines=['Merhaba, sepetimdeki \u00fcr\u00fcnleri sipari\u015f etmek istiyorum:',''];
   for(var i=0;i<fd.length;i++) lines.push((i+1)+'. '+fd[i].n+' - '+fd[i].b+(fd[i].p?' ('+fd[i].p.toLocaleString('tr-TR')+' \u20ba)':''));
-  window.open('https://wa.me/905465402113?text='+encodeURIComponent(lines.join('\n')),'_blank');
+  e.currentTarget.href=waTargetUrl('905050583054',lines.join('\n'));
 }
 
 function openDetail(idx){
@@ -344,6 +351,12 @@ function closeDetail(){
 
 updateFavCount();
 applyFilter();
+(function(){
+  var ua=navigator.userAgent||'';
+  if(/TikTok|musical_ly|BytedanceWebview|Instagram|FBAN|FBAV|Line\//i.test(ua)){
+    var b=document.getElementById('iab-banner'); if(b) b.style.display='block';
+  }
+})();
 </script>
 </body>
 </html>
